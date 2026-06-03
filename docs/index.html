@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aizan MAE Documentation</title>
+    <meta
+      name="description"
+      content="GitHub Pages recreation of the Aizan MAE Theneo overview page."
+    />
+    <link rel="icon" href="assets/aizan-logo.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <aside class="sidebar" aria-label="Sections">
+        <a class="brand" href="#overview" aria-label="Aizan documentation home">
+          <img src="assets/aizan-logo.svg" alt="" width="24" height="24" />
+          <span>Aizan</span>
+        </a>
+
+        <label class="search" aria-label="Search sections">
+          <span class="search-icon" aria-hidden="true"></span>
+          <input id="section-search" type="search" placeholder="Search" />
+        </label>
+
+        <p class="nav-eyebrow">Sections</p>
+        <nav class="section-nav">
+          <a href="#overview">Overview</a>
+          <a href="#authorization">Authorization</a>
+          <a href="#sms-outbound">SMS Outbound Request</a>
+          <a href="#mms-outbound">MMS Outbound Request</a>
+          <a href="#media-creation">Media Creation Request</a>
+          <a href="#delivery-callback">Delivery Callback</a>
+          <a href="#inbound-callback">Inbound Message Callback</a>
+        </nav>
+
+        <div class="sidebar-footer">
+          <span>Powered by</span>
+          <strong>Theneo</strong>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section class="doc-section intro-section" id="overview">
+          <div class="doc-copy">
+            <h1>Overview</h1>
+            <p>
+              MAE enables customers to send and receive SMS and MMS messages. It
+              is a collection of REST API calls that support outbound messaging,
+              inbound message callbacks, delivery notifications, and media
+              handling.
+            </p>
+
+            <h2>Authorization Process</h2>
+            <p>
+              Aizan authentication follows an OAuth2 client-credentials flow.
+              During onboarding, customers receive credentials that are exchanged
+              for a Bearer token. The token expires periodically and must be
+              refreshed before continuing to call MAE APIs.
+            </p>
+
+            <h2>DID Assignment</h2>
+            <p>
+              During onboarding, customers also receive a local 10-digit DID
+              mapped to their account. This DID is used as the source, or From,
+              number for outbound messaging requests.
+            </p>
+
+            <h2>Base URL</h2>
+            <dl class="url-list">
+              <div>
+                <dt>Production</dt>
+                <dd>https://cloudapi.aizan.com/mae/</dd>
+              </div>
+              <div>
+                <dt>Sandbox</dt>
+                <dd>https://stagingcloudapi.aizan.com/mae/</dd>
+              </div>
+            </dl>
+          </div>
+
+          <aside class="example-stack" aria-label="Overview examples">
+            <div class="mini-card">
+              <span class="mini-title">Base URL</span>
+              <code>https://cloudapi.aizan.com/mae/</code>
+            </div>
+          </aside>
+        </section>
+
+        <section class="doc-section" id="authorization">
+          <div class="doc-copy">
+            <h1>Authorization</h1>
+            <p>
+              All requests must be authenticated. Aizan APIs use OAuth2 through
+              AWS Cognito for token generation, allowing enterprise-grade
+              authentication before SMS, MMS, media, and callback workflows are
+              used.
+            </p>
+
+            <h3>Authentication</h3>
+            <p>
+              Authorization is performed with a POST request to the token URL.
+              The request contains a Basic Authorization header with the
+              customer's encoded credentials and a form body containing
+              <code>grant_type=client_credentials</code>.
+            </p>
+
+            <div class="endpoint-meta">
+              <span class="method post">POST</span>
+              <span>https://cloudauth.aizan.com/oauth2/token</span>
+            </div>
+
+            <h3>Error code details</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Error Code</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>400</td>
+                  <td>Bad Request</td>
+                </tr>
+                <tr>
+                  <td>500</td>
+                  <td>Internal Server Error</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <h3>Response</h3>
+            <div class="response-block">
+              <span class="status ok">200</span>
+              <span>Object</span>
+              <strong>OK</strong>
+            </div>
+
+            <h4>Response Attributes</h4>
+            <div class="param-list">
+              <div>
+                <code>access_token</code>
+                <span>string</span>
+                <p>Bearer token used for authenticated MAE requests.</p>
+              </div>
+              <div>
+                <code>expires_in</code>
+                <span>string</span>
+                <p>Lifespan of the token in seconds.</p>
+              </div>
+              <div>
+                <code>token_type</code>
+                <span>string</span>
+                <p>Token type returned by the identity provider.</p>
+              </div>
+            </div>
+          </div>
+
+          <aside class="example-stack" aria-label="Authorization examples">
+            <div class="code-card">
+              <div class="card-header">
+                <span>Request</span>
+                <button type="button" data-copy="auth-request">Copy</button>
+              </div>
+              <pre id="auth-request"><code>curl --location 'https://cloudauth.aizan.com/oauth2/token' \
+  --header 'Content-Type: application/x-www-form-urlencoded' \
+  --header 'Authorization: Basic BASE64ENCODED_LOGIN:PASSWORD' \
+  --data-urlencode 'grant_type=client_credentials'</code></pre>
+            </div>
+            <div class="code-card">
+              <div class="card-header">
+                <span>Response</span>
+                <button type="button" data-copy="auth-response">Copy</button>
+              </div>
+              <pre id="auth-response"><code>{
+  "access_token": "[Bearer Token]",
+  "expires_in": "[Expiry Time]",
+  "token_type": "Bearer"
+}</code></pre>
+            </div>
+          </aside>
+        </section>
+
+        <section class="doc-section" id="sms-outbound">
+          <div class="doc-copy">
+            <h1>SMS Outbound Request</h1>
+            <p>
+              SMS Outbound Request initiates a customer message request to a
+              mobile user.
+            </p>
+            <ol class="steps">
+              <li>Customer makes a request to the MAE API.</li>
+              <li>MAE validates the request and passes the message for delivery.</li>
+              <li>A delivery callback is sent to the configured customer URL.</li>
+            </ol>
+
+            <div class="endpoint-meta">
+              <span class="method post">POST</span>
+              <span>https://cloudapi.aizan.com/mae/sms/v1/outbound</span>
+            </div>
+
+            <h4>Header Parameters</h4>
+            <div class="param-list">
+              <div>
+                <code>Authorization</code>
+                <span>string required</span>
+                <p>Bearer token returned from the authorization request.</p>
+              </div>
+            </div>
+
+            <h4>Body Parameters</h4>
+            <div class="param-list">
+              <div>
+                <code>source</code>
+                <span>string required</span>
+                <p>10-digit DID assigned to the customer account.</p>
+              </div>
+              <div>
+                <code>destination</code>
+                <span>string required</span>
+                <p>Mobile number receiving the SMS message.</p>
+              </div>
+              <div>
+                <code>messageText</code>
+                <span>string required</span>
+                <p>Text body of the outbound SMS.</p>
+              </div>
+            </div>
+
+            <h3>Response</h3>
+            <div class="response-block">
+              <span class="status ok">200</span>
+              <span>Object</span>
+              <strong>Message accepted</strong>
+            </div>
+          </div>
+
+          <aside class="example-stack" aria-label="SMS outbound examples">
+            <div class="code-card">
+              <div class="card-header">
+                <span>Request</span>
+                <button type="button" data-copy="sms-request">Copy</button>
+              </div>
+              <pre id="sms-request"><code>curl --location 'https://cloudapi.aizan.com/mae/sms/v1/outbound' \
+  --header 'Authorization: Bearer {Token}' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "source": "12262122660",
+    "destination": "14166888292",
+    "messageText": "Hello World!"
+  }'</code></pre>
+            </div>
+            <div class="code-card">
+              <div class="card-header">
+                <span>Response</span>
+                <button type="button" data-copy="sms-response">Copy</button>
+              </div>
+              <pre id="sms-response"><code>{
+  "source": "224900451452",
+  "destination": "490045145222",
+  "messageText": "Hello",
+  "messageId": "e77a9a77-4f18-4f7b-ae92-6d7984558fb3"
+}</code></pre>
+            </div>
+          </aside>
+        </section>
+
+        <section class="doc-section" id="mms-outbound">
+          <div class="doc-copy">
+            <h1>MMS Outbound Request</h1>
+            <p>
+              MMS Outbound Request sends a multimedia message from an assigned
+              DID to a destination number. Media must be created first and sent
+              by referencing one or more media IDs.
+            </p>
+
+            <div class="endpoint-meta">
+              <span class="method post">POST</span>
+              <span>https://cloudapi.aizan.com/mae/mms/v1/outbound</span>
+            </div>
+
+            <h4>Header Parameters</h4>
+            <div class="param-list">
+              <div>
+                <code>Authorization</code>
+                <span>string required</span>
+                <p>Bearer token returned from the authorization request.</p>
+              </div>
+            </div>
+
+            <h4>Body Parameters</h4>
+            <div class="param-list">
+              <div>
+                <code>source</code>
+                <span>string required</span>
+                <p>10-digit DID assigned to the customer account.</p>
+              </div>
+              <div>
+                <code>destination</code>
+                <span>string required</span>
+                <p>Mobile number receiving the MMS message.</p>
+              </div>
+              <div>
+                <code>messageText</code>
+                <span>string optional</span>
+                <p>Text included with the MMS payload.</p>
+              </div>
+              <div>
+                <code>mediaId</code>
+                <span>array required</span>
+                <p>Media IDs returned by the media creation request.</p>
+              </div>
+            </div>
+
+            <h3>Error code details</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Error Code</th>
+                  <th>Message</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>400</td>
+                  <td>Invalid Request</td>
+                </tr>
+                <tr>
+                  <td>401</td>
+                  <td>Unauthorized access</td>
+                </tr>
+                <tr>
+                  <td>500</td>
+                  <td>Internal Server Error</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="example-stack" aria-label="MMS outbound examples">
+            <div class="code-card">
+              <div class="card-header">
+                <span>Request</span>
+                <button type="button" data-copy="mms-request">Copy</button>
+              </div>
+              <pre id="mms-request"><code>curl --location 'https://cloudapi.aizan.com/mae/mms/v1/outbound' \
+  --header 'Authorization: Bearer {Token}' \
+  --data '{
+    "source": "12262122660",
+    "destination": "14166888292",
+    "messageText": "Hello!",
+    "mediaId": [
+      "6b512106-d537-493d-9ecd-5f597d0bbe97"
+    ]
+  }'</code></pre>
+            </div>
+            <div class="code-card">
+              <div class="card-header">
+                <span>Response</span>
+                <button type="button" data-copy="mms-response">Copy</button>
+              </div>
+              <pre id="mms-response"><code>{
+  "source": "224900451452",
+  "destination": "490045145222",
+  "messageText": "Hello",
+  "messageId": "e77a9a77-4f18-4f7b-ae92-6d7984558fb3",
+  "mediaId": [
+    "6b512106-d537-493d-9ecd-5f597d0bbe97"
+  ]
+}</code></pre>
+            </div>
+          </aside>
+        </section>
+
+        <section class="doc-section" id="media-creation">
+          <div class="doc-copy">
+            <h1>Media Creation Request</h1>
+            <p>
+              Media Creation Request uploads media content and returns a media
+              ID. That media ID can then be referenced by outbound MMS requests.
+            </p>
+
+            <div class="endpoint-meta">
+              <span class="method post">POST</span>
+              <span>https://cloudapi.aizan.com/mae/media/v1/files</span>
+            </div>
+
+            <h4>Header Parameters</h4>
+            <div class="param-list">
+              <div>
+                <code>Authorization</code>
+                <span>string required</span>
+                <p>Bearer token returned from the authorization request.</p>
+              </div>
+              <div>
+                <code>media-part</code>
+                <span>string required</span>
+                <p>Indicates the uploaded media type and content part.</p>
+              </div>
+            </div>
+
+            <h4>Supported media types</h4>
+            <table>
+              <tbody>
+                <tr>
+                  <td>image</td>
+                  <td>Use an image media payload.</td>
+                </tr>
+                <tr>
+                  <td>audio</td>
+                  <td>Use an audio media payload.</td>
+                </tr>
+                <tr>
+                  <td>video</td>
+                  <td>Use a video media payload.</td>
+                </tr>
+                <tr>
+                  <td>pdf</td>
+                  <td>Use a PDF media payload.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="example-stack" aria-label="Media creation examples">
+            <div class="code-card">
+              <div class="card-header">
+                <span>Request</span>
+                <button type="button" data-copy="media-request">Copy</button>
+              </div>
+              <pre id="media-request"><code>curl --location 'https://cloudapi.aizan.com/mae/media/v1/files' \
+  --header 'media-part: application/octet-stream' \
+  --header 'media-part: image' \
+  --header 'Authorization: Bearer {Token}' \
+  --data '{
+    "controlPart": {
+      "fileName": "unnamed.png",
+      "fileType": "image"
+    },
+    "mediaPart": {
+      "contentType": "application/octet-stream",
+      "mediaContent": "&lt;Base64&gt;"
+    }
+  }'</code></pre>
+            </div>
+            <div class="code-card">
+              <div class="card-header">
+                <span>Response</span>
+                <button type="button" data-copy="media-response">Copy</button>
+              </div>
+              <pre id="media-response"><code>{
+  "mediaId": "59d6b444-2b05-4b2e-9d03-e91118784217",
+  "fileName": "59d6b444-2b05-4b2e-9d03-e91118784217.png",
+  "type": "image",
+  "createdDts": "2023-09-26T07:10:00.106354"
+}</code></pre>
+            </div>
+          </aside>
+        </section>
+
+        <section class="doc-section" id="delivery-callback">
+          <div class="doc-copy">
+            <h1>Delivery Callback</h1>
+            <p>
+              Delivery callbacks notify the customer system as delivery status
+              changes. Aizan sends the callback to the customer-provided URL
+              configured during onboarding.
+            </p>
+
+            <h4>Body Parameters</h4>
+            <div class="param-list">
+              <div>
+                <code>messageId</code>
+                <span>string</span>
+                <p>Message identifier returned by the outbound request.</p>
+              </div>
+              <div>
+                <code>deliveryStatus</code>
+                <span>string</span>
+                <p>Current delivery state for the message.</p>
+              </div>
+              <div>
+                <code>from</code>
+                <span>string</span>
+                <p>Source DID used by the outbound message.</p>
+              </div>
+              <div>
+                <code>to</code>
+                <span>string</span>
+                <p>Destination mobile number.</p>
+              </div>
+            </div>
+
+            <h4>Status values</h4>
+            <table>
+              <tbody>
+                <tr>
+                  <td>PENDING</td>
+                  <td>Message delivered to the SMS carrier.</td>
+                </tr>
+                <tr>
+                  <td>DELIVERED</td>
+                  <td>Message delivered to the recipient carrier.</td>
+                </tr>
+                <tr>
+                  <td>HANDSET DELIVERED</td>
+                  <td>Message delivered to the recipient handset when supported.</td>
+                </tr>
+                <tr>
+                  <td>ERROR</td>
+                  <td>Exception occurred during processing or delivery.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <aside class="example-stack" aria-label="Delivery callback examples">
+            <div class="code-card">
+              <div class="card-header">
+                <span>Callback</span>
+                <button type="button" data-copy="delivery-request">Copy</button>
+              </div>
+              <pre id="delivery-request"><code>curl --location 'https://cloudapi.aizan.com/mae/customer-provided-url' \
+  --header 'Authorization: Bearer {Token}' \
+  --data '{
+    "messageId": "48c90962-9318-4510-a434-67a77ec355b0",
+    "deliveryStatus": "DELIVERED",
+    "from": "12262122660",
+    "to": "14166888292"
+  }'</code></pre>
+            </div>
+            <div class="code-card compact">
+              <div class="card-header">
+                <span>Response</span>
+              </div>
+              <pre><code>200 OK</code></pre>
+            </div>
+          </aside>
+        </section>
+
+        <section class="doc-section" id="inbound-callback">
+          <div class="doc-copy">
+            <h1>Inbound Message Callback</h1>
+            <p>
+              Inbound message callbacks notify the customer system when a mobile
+              user sends a message to an assigned DID. Aizan posts the inbound
+              payload to the configured customer URL.
+            </p>
+
+            <h4>Body Parameters</h4>
+            <div class="param-list">
+              <div>
+                <code>messageId</code>
+                <span>string</span>
+                <p>Unique identifier for the inbound message.</p>
+              </div>
+              <div>
+                <code>from</code>
+                <span>string</span>
+                <p>Mobile user sending the message.</p>
+              </div>
+              <div>
+                <code>to</code>
+                <span>string</span>
+                <p>Customer DID that received the message.</p>
+              </div>
+              <div>
+                <code>message</code>
+                <span>string</span>
+                <p>Inbound text message content.</p>
+              </div>
+            </div>
+
+            <h3>Response</h3>
+            <div class="response-block">
+              <span class="status ok">200</span>
+              <span>Object</span>
+              <strong>Callback acknowledged</strong>
+            </div>
+          </div>
+
+          <aside class="example-stack" aria-label="Inbound callback examples">
+            <div class="code-card">
+              <div class="card-header">
+                <span>Callback</span>
+                <button type="button" data-copy="inbound-request">Copy</button>
+              </div>
+              <pre id="inbound-request"><code>curl --location 'https://cloudapi.aizan.com/mae/customer-provided-url' \
+  --header 'Authorization: Bearer {Token}' \
+  --data '{
+    "messageId": "48c90962-9318-4510-a434-67a77ec355b0",
+    "from": "12262122660",
+    "to": "14166888292",
+    "message": "Hello World!"
+  }'</code></pre>
+            </div>
+            <div class="code-card compact">
+              <div class="card-header">
+                <span>Response</span>
+              </div>
+              <pre><code>200 OK</code></pre>
+            </div>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
