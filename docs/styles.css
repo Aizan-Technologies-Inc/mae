@@ -66,11 +66,8 @@ pre {
 .brand {
   display: inline-flex;
   width: max-content;
+  height: 40px;
   align-items: center;
-  gap: 9px;
-  color: #1d2530;
-  font-size: 15px;
-  font-weight: 700;
   text-decoration: none;
 }
 
