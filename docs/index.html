@@ -168,12 +168,16 @@
   --header 'Authorization: Basic BASE64ENCODED_LOGIN:PASSWORD' \
   --data-urlencode 'grant_type=client_credentials'</code></pre>
             </div>
-            <div class="code-card">
+            <div class="code-card response-code-card" data-response-card="auth">
               <div class="card-header">
                 <span>Response</span>
                 <button type="button" data-copy="auth-response">Copy</button>
               </div>
-              <pre id="auth-response"><code>{
+              <div class="response-tabs">
+                <button class="is-active" type="button" data-response-tab="auth" data-response-code="200">200</button>
+                <button type="button" data-response-tab="auth" data-response-code="400">400</button>
+              </div>
+              <pre id="auth-response" data-response-output="auth"><code>{
   "access_token": "[Bearer Token]",
   "expires_in": "[Expiry Time]",
   "token_type": "Bearer"
@@ -272,12 +276,17 @@
     "messageText": "Hello World!"
   }'</code></pre>
             </div>
-            <div class="code-card">
+            <div class="code-card response-code-card" data-response-card="sms">
               <div class="card-header">
                 <span>Response</span>
                 <button type="button" data-copy="sms-response">Copy</button>
               </div>
-              <pre id="sms-response"><code>{
+              <div class="response-tabs">
+                <button class="is-active" type="button" data-response-tab="sms" data-response-code="200">200</button>
+                <button type="button" data-response-tab="sms" data-response-code="401">401</button>
+                <button type="button" data-response-tab="sms" data-response-code="400">400</button>
+              </div>
+              <pre id="sms-response" data-response-output="sms"><code>{
   "source": "224900451452",
   "destination": "490045145222",
   "messageText": "Hello",
@@ -397,12 +406,18 @@
     ]
   }'</code></pre>
             </div>
-            <div class="code-card">
+            <div class="code-card response-code-card" data-response-card="mms">
               <div class="card-header">
                 <span>Response</span>
                 <button type="button" data-copy="mms-response">Copy</button>
               </div>
-              <pre id="mms-response"><code>{
+              <div class="response-tabs">
+                <button class="is-active" type="button" data-response-tab="mms" data-response-code="200">200</button>
+                <button type="button" data-response-tab="mms" data-response-code="401">401</button>
+                <button type="button" data-response-tab="mms" data-response-code="400">400</button>
+                <button type="button" data-response-tab="mms" data-response-code="500">500</button>
+              </div>
+              <pre id="mms-response" data-response-output="mms"><code>{
   "source": "224900451452",
   "destination": "490045145222",
   "messageText": "Hello",
@@ -507,12 +522,17 @@
     }
   }'</code></pre>
             </div>
-            <div class="code-card">
+            <div class="code-card response-code-card" data-response-card="media">
               <div class="card-header">
                 <span>Response</span>
                 <button type="button" data-copy="media-response">Copy</button>
               </div>
-              <pre id="media-response"><code>{
+              <div class="response-tabs">
+                <button class="is-active" type="button" data-response-tab="media" data-response-code="200">200</button>
+                <button type="button" data-response-tab="media" data-response-code="400">400</button>
+                <button type="button" data-response-tab="media" data-response-code="500">500</button>
+              </div>
+              <pre id="media-response" data-response-output="media"><code>{
   "mediaId": "59d6b444-2b05-4b2e-9d03-e91118784217",
   "fileName": "59d6b444-2b05-4b2e-9d03-e91118784217.png",
   "type": "image",

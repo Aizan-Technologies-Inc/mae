@@ -274,6 +274,68 @@ $callback = [
   }
 };
 
+const responseSnippets = {
+  auth: {
+    200: `{
+  "access_token": "[Bearer Token]",
+  "expires_in": "[Expiry Time]",
+  "token_type": "Bearer"
+}`,
+    400: `{
+  "error": "invalid_client"
+}`
+  },
+  sms: {
+    200: `{
+  "source": "224900451452",
+  "destination": "490045145222",
+  "messageText": "Hello",
+  "messageId": "e77a9a77-4f18-4f7b-ae92-6d7984558fb3"
+}`,
+    401: `{
+  "status": 401,
+  "message": "Unauthorized access!"
+}`,
+    400: `{
+  "status": 400,
+  "message": "Source number is not authorized"
+}`
+  },
+  mms: {
+    200: `{
+  "source": "224900451452",
+  "destination": "490045145222",
+  "messageText": "Hello",
+  "messageId": "e77a9a77-4f18-4f7b-ae92-6d7984558fb3",
+  "mediaId": [
+    "6b512106-d537-493d-9ecd-5f597d0bbe97"
+  ]
+}`,
+    401: `{
+  "status": 401,
+  "message": "Unauthorized access!"
+}`,
+    400: `{
+  "status": 400,
+  "message": "Source number is not authorized"
+}`,
+    500: `Internal Server Error`
+  },
+  media: {
+    200: `{
+  "mediaId": "59d6b444-2b05-4b2e-9d03-e91118784217",
+  "fileName": "59d6b444-2b05-4b2e-9d03-e91118784217.png",
+  "type": "image",
+  "createdDts": "2023-09-26T07:10:00.106354"
+}`,
+    400: `{
+  "status": 400,
+  "message": "Invalid Request"
+}`,
+    500: `Internal Server Error`
+  }
+};
+
 const observer = new IntersectionObserver(
   (entries) => {
     const visible = entries
@@ -364,3 +426,26 @@ document.querySelectorAll("[data-language-tab]").forEach((button) => {
 });
 
 Object.keys(snippets).forEach((snippetKey) => setLanguage(snippetKey, "curl"));
+
+function setResponseCode(responseKey, code) {
+  const snippet = responseSnippets[responseKey]?.[code];
+  const output = document.querySelector(`[data-response-output="${responseKey}"]`);
+
+  if (!snippet || !output) {
+    return;
+  }
+
+  output.textContent = snippet;
+
+  document.querySelectorAll(`[data-response-tab="${responseKey}"]`).forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.responseCode === String(code));
+  });
+}
+
+document.querySelectorAll("[data-response-tab]").forEach((button) => {
+  button.addEventListener("click", () => {
+    setResponseCode(button.dataset.responseTab, button.dataset.responseCode);
+  });
+});
+
+Object.keys(responseSnippets).forEach((responseKey) => setResponseCode(responseKey, "200"));

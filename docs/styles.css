@@ -163,13 +163,13 @@ pre {
 }
 
 .content {
-  width: min(100%, 1160px);
+  width: min(100%, 1320px);
   padding: 32px 42px 96px;
 }
 
 .doc-section {
   display: grid;
-  grid-template-columns: minmax(0, 650px) 330px;
+  grid-template-columns: minmax(0, 650px) 430px;
   gap: 44px;
   align-items: start;
   padding: 20px 0 76px;
@@ -500,6 +500,10 @@ td {
   min-height: 66px;
 }
 
+.response-code-card pre {
+  min-height: 136px;
+}
+
 .card-header {
   display: flex;
   min-height: 38px;
@@ -555,6 +559,46 @@ td {
 
 .card-header button:hover {
   background: #373d49;
+}
+
+.response-tabs {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  padding: 18px 18px 4px;
+  background: #0d0d0e;
+}
+
+.response-tabs button {
+  min-width: 48px;
+  min-height: 36px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #ff5d65;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.response-tabs button[data-response-code="200"] {
+  color: var(--code-accent);
+}
+
+.response-tabs button[data-response-code="500"] {
+  color: #ff4fab;
+}
+
+.response-tabs button.is-active {
+  background: rgb(255 78 87 / 12%);
+}
+
+.response-tabs button[data-response-code="200"].is-active {
+  background: rgb(0 212 165 / 12%);
+}
+
+.response-tabs button[data-response-code="500"].is-active {
+  background: rgb(255 79 171 / 12%);
 }
 
 pre {
