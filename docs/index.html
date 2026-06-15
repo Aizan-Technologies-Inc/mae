@@ -6,10 +6,10 @@
     <title>Aizan MAE Documentation</title>
     <meta
       name="description"
-      content="GitHub Pages recreation of the Aizan MAE Theneo overview page."
+      content="GitHub Pages documentation for the Aizan MAE API."
     />
     <link rel="icon" href="assets/aizan-logo.svg" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=search-fix-1" />
   </head>
   <body>
     <div class="page-shell">
@@ -22,6 +22,7 @@
           <span class="search-icon" aria-hidden="true"></span>
           <input id="section-search" type="search" placeholder="Search" />
         </label>
+        <p class="search-status" id="search-status" role="status" aria-live="polite"></p>
 
         <p class="nav-eyebrow">Sections</p>
         <nav class="section-nav">
@@ -33,11 +34,6 @@
           <a href="#delivery-callback">Delivery Callback</a>
           <a href="#inbound-callback">Inbound Message Callback</a>
         </nav>
-
-        <div class="sidebar-footer">
-          <span>Powered by</span>
-          <strong>Theneo</strong>
-        </div>
       </aside>
 
       <main class="content">
@@ -731,6 +727,6 @@
       </main>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=search-fix-1"></script>
   </body>
 </html>

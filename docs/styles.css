@@ -121,6 +121,18 @@ pre {
   transform: rotate(45deg);
 }
 
+.search-status {
+  display: none;
+  margin: -18px 0 22px;
+  color: var(--subtle);
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.search-status.is-visible {
+  display: block;
+}
+
 .nav-eyebrow {
   margin: 0 0 10px;
   color: #20242a;
@@ -150,16 +162,9 @@ pre {
   color: var(--blue);
 }
 
-.sidebar-footer {
-  margin-top: auto;
-  color: var(--subtle);
-  font-size: 12px;
-}
-
-.sidebar-footer strong {
-  display: block;
-  margin-top: 3px;
-  color: #20242a;
+.section-nav a.is-search-hidden,
+.doc-section.is-search-hidden {
+  display: none;
 }
 
 .content {
@@ -654,10 +659,6 @@ pre code {
 
   .section-nav {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .sidebar-footer {
-    display: none;
   }
 
   .content {

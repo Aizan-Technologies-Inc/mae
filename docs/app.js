@@ -2,6 +2,82 @@ const navLinks = Array.from(document.querySelectorAll(".section-nav a"));
 const sections = navLinks
   .map((link) => document.querySelector(link.getAttribute("href")))
   .filter(Boolean);
+const searchInput = document.querySelector("#section-search");
+const searchStatus = document.querySelector("#search-status");
+const sectionSearchIndex = navLinks
+  .map((link) => {
+    const id = link.getAttribute("href")?.slice(1);
+    const section = id ? document.getElementById(id) : null;
+
+    if (!id || !section) return null;
+
+    return {
+      id,
+      title: link.textContent.trim().toLowerCase(),
+      text: `${link.textContent} ${id.replaceAll("-", " ")}`.toLowerCase()
+    };
+  })
+  .filter(Boolean);
+let activeSearchTarget = "";
+
+function setActiveNav(id) {
+  navLinks.forEach((link) => {
+    link.classList.toggle("is-active", link.getAttribute("href") === `#${id}`);
+  });
+}
+
+function updateSearch(query) {
+  const visibleQuery = query.trim();
+  const normalizedQuery = visibleQuery.toLowerCase();
+
+  if (!normalizedQuery) {
+    navLinks.forEach((link) => link.classList.remove("is-search-hidden"));
+    sections.forEach((section) => section.classList.remove("is-search-hidden"));
+    searchStatus?.classList.remove("is-visible");
+    if (searchStatus) searchStatus.textContent = "";
+    activeSearchTarget = "";
+    return;
+  }
+
+  const titleMatches = sectionSearchIndex.filter((item) => item.title.includes(normalizedQuery));
+  const titleMatchIds = new Set(titleMatches.map((item) => item.id));
+  const bodyMatches = sectionSearchIndex.filter(
+    (item) => !titleMatchIds.has(item.id) && item.text.includes(normalizedQuery)
+  );
+  const matches = [...titleMatches, ...bodyMatches];
+  const matchingIds = new Set(matches.map((item) => item.id));
+
+  navLinks.forEach((link) => {
+    const id = link.getAttribute("href")?.slice(1);
+    link.classList.toggle("is-search-hidden", !matchingIds.has(id));
+  });
+
+  sections.forEach((section) => {
+    section.classList.toggle("is-search-hidden", !matchingIds.has(section.id));
+  });
+
+  if (searchStatus) {
+    const resultLabel = matches.length === 1 ? "result" : "results";
+    searchStatus.textContent = matches.length
+      ? `${matches.length} ${resultLabel} for "${visibleQuery}".`
+      : `No sections found for "${visibleQuery}".`;
+    searchStatus.classList.add("is-visible");
+  }
+
+  if (!matches.length) {
+    activeSearchTarget = "";
+    return;
+  }
+
+  const firstMatch = matches[0].id;
+  setActiveNav(firstMatch);
+
+  if (activeSearchTarget === firstMatch) return;
+
+  activeSearchTarget = firstMatch;
+  document.getElementById(firstMatch)?.scrollIntoView({ block: "start" });
+  history.replaceState(null, "", `#${firstMatch}`);
+}
 
 const snippets = {
   sms: {
@@ -346,9 +422,7 @@ const observer = new IntersectionObserver(
       return;
     }
 
-    navLinks.forEach((link) => {
-      link.classList.toggle("is-active", link.getAttribute("href") === `#${visible.target.id}`);
-    });
+    setActiveNav(visible.target.id);
   },
   {
     rootMargin: "-20% 0px -60% 0px",
@@ -358,13 +432,18 @@ const observer = new IntersectionObserver(
 
 sections.forEach((section) => observer.observe(section));
 
-document.querySelector("#section-search").addEventListener("input", (event) => {
-  const query = event.target.value.trim().toLowerCase();
+searchInput?.addEventListener("input", (event) => {
+  updateSearch(event.target.value);
+});
 
-  navLinks.forEach((link) => {
-    const matches = !query || link.textContent.toLowerCase().includes(query);
-    link.hidden = !matches;
-  });
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "/" || event.metaKey || event.ctrlKey || event.altKey) return;
+
+  const activeTag = document.activeElement?.tagName;
+  if (activeTag === "INPUT" || activeTag === "TEXTAREA" || activeTag === "SELECT") return;
+
+  event.preventDefault();
+  searchInput?.focus();
 });
 
 document.querySelectorAll("[data-copy]").forEach((button) => {
